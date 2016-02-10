@@ -141,6 +141,7 @@ weather.updateWeatherForecast = function () {
 				_forecastHtml3 += '<td style="opacity:' + _opacity + '" class="temp-max">' + this.roundValue(_forecast.temp.max) + '</td>';
 				_forecastHtml4 += '<td style="opacity:' + _opacity + '" class="temp-min">' + this.roundValue(_forecast.temp.min) + '</td>';
 
+//Denne setter at det skal fades nedover i lista
 				_opacity -= 0.155;
 
 				if (this.orientation == 'vertical') {
