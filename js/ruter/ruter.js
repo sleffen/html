@@ -7,7 +7,9 @@ var ruter = {
 		'metro':'wi-cloudy',
 		},*/
 	travelList: '.travel',
-	apiBase: '/GetRuter.php/StopVisit/GetDepartures/3010524?json=true',
+	apiBaseBus: '/GetRuter.php/StopVisit/GetDepartures/3010524?json=true',
+	apiBaseTram: '/GetRuter.php/StopVisit/GetDepartures/3010520?json=true',
+	apiBaseMetro: '/GetRuter.php/StopVisit/GetDepartures/3011400?json=true',
 	busNumber: config.ruter.busNumber,
 	tramNumber: config.ruter.tramNumber,
 	metroNumber: config.ruter.metroNumber,
@@ -18,23 +20,62 @@ var ruter = {
 }
 
 ruter.updateCurrentTravel = function () {
-
 	$.ajax({
 		type: 'GET',
-		url: ruter.apiBase ,
+		url: ruter.apiBaseBus ,
 		dataType: 'json',
-		data: config.ruter.params,
-		success: function (data) {
+		dataBus: config.ruter.params,
+		success: function (dataBus) {
+			ruter.dataBus = dataBus;
+		}
+	});
+	$.ajax({
+		type: 'GET',
+		url: ruter.apiBaseTram ,
+		dataType: 'json',
+		dataTram: config.ruter.params,
+		success: function (dataTram) {
+			ruter.dataTram = dataTram;
+		}
+	});
+	$.ajax({
+		type: 'GET',
+		url: ruter.apiBaseMetro ,
+		dataType: 'json',
+		dataMetro: config.ruter.params,
+		success: function (dataMetro) {
+			dataMetro = dataMetro.concat(ruter.dataBus);
+			dataMetro = dataMetro.concat(ruter.dataTram);
+			var _LengthOfData = dataMetro.length;
+			
+			if (ruter.dataBus==undefined){return;}
+			if (ruter.dataTram==undefined){return;}
+			for(var iChangeDateCount = 0, count = dataMetro.length; iChangeDateCount < count; iChangeDateCount++){
+				dataMetro[iChangeDateCount].MonitoredVehicleJourney.MonitoredCall.unixTime= Date.parse(dataMetro[iChangeDateCount].MonitoredVehicleJourney.MonitoredCall.AimedDepartureTime);
+			}
+			
+			dtCurrentTime = new Date();
 
-			var _busName = data[0].MonitoredVehicleJourney.MonitoredCall.DestinationDisplay;
+			
+			dataMetro = dataMetro.filter( function(value){
+				return ( value.MonitoredVehicleJourney.MonitoredCall.unixTime > (dtCurrentTime.getTime() + (5*60*1000) ));
+				});
+			
+			dataMetro.sort(function(a,b){
+				return a.MonitoredVehicleJourney.MonitoredCall.unixTime - b.MonitoredVehicleJourney.MonitoredCall.unixTime;
+			})
+			
+			
+			
+			var _busName = dataMetro[0].MonitoredVehicleJourney.MonitoredCall.DestinationDisplay + dataMetro[0].MonitoredVehicleJourney.MonitoredCall.AimedArrivalTime;
 				//_temperatureMin = this.roundValue(data.main.temp_min),
 				//_temperatureMax = this.roundValue(data.main.temp_max),
 				//_wind = this.roundValue(data.wind.speed),
 				//_iconClass = this.iconTable[data.weather[0].icon];
 
-			var _icon = '<span class="icon-svg-metro"></span>';
+			var _icon = '<span class="icon-svg-bus"></span>';
 
-			var _newTempHtml = _icon + '' +_busName;
+			var _newTempHtml = _icon + "" + _LengthOfData + "" + _busName;
 
 			$(this.travelList).updateWithText(_newTempHtml, this.fadeInterval);
 
