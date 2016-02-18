@@ -51,8 +51,6 @@ ruter.updateCurrentTravel = function () {
 			}
 			
 			dtCurrentTime = new Date();
-
-			
 			dataMetro = dataMetro.filter( function(value){
 				return ( value.MonitoredVehicleJourney.MonitoredCall.unixTime > (dtCurrentTime.getTime() + (config.ruter.minutesWait*60*1000) ));
 				});
@@ -63,7 +61,6 @@ ruter.updateCurrentTravel = function () {
 			
 			var	_opacity = 1, 
 					_NextLineHtml = '<table class="ruter-table"><tr>',
-					//_NextLineHtml = '<table><tr>',
 					_NextLineHtml2 = '',
 					_NextLineHtml3 = '';
 				
@@ -71,39 +68,16 @@ ruter.updateCurrentTravel = function () {
 			for(var iPrintHTMLCount = 0, count = 11; iPrintHTMLCount < count; iPrintHTMLCount++){
 				var _NextLine = dataMetro[iPrintHTMLCount];
 				var timeUntilNextLine = _NextLine.MonitoredVehicleJourney.MonitoredCall.unixTime - dtCurrentTime.getTime();
-				moment(timeUntilNextLine,'x').format('m')
+
 				_NextLineHtml += '<td style="opacity:' + _opacity + '" class="day">' + this.iconTable[_NextLine.MonitoredVehicleJourney.VehicleMode] + '</td>';
 				//_NextLineHtml += '<td style="opacity:' + _opacity + '" class="day">' + _NextLine.MonitoredVehicleJourney.LineRef + '</td>';
 				_NextLineHtml += '<td style="opacity:' + _opacity + '" class="day">' + _NextLine.MonitoredVehicleJourney.LineRef  + ' ' + _NextLine.MonitoredVehicleJourney.MonitoredCall.DestinationDisplay + '</td>';
 				_NextLineHtml += '<td style="opacity:' + _opacity + '" class="day">' +  moment(timeUntilNextLine,'x').format('m') +  ' min</td>';
 				_NextLineHtml += '</tr>';
 				}
-			var _busName = dataMetro[0].MonitoredVehicleJourney.MonitoredCall.DestinationDisplay + dataMetro[0].MonitoredVehicleJourney.MonitoredCall.unixTime;
-				//_temperatureMin = this.roundValue(data.main.temp_min),
-				//_temperatureMax = this.roundValue(data.main.temp_max),
-				//_wind = this.roundValue(data.wind.speed),
-				//_iconClass = this.iconTable[data.weather[0].icon];
 
-			var _icon = '<span class="icon-svg-bus"></span>';
-
-			//var _newTempHtml = _icon + "" + _LengthOfData + "" + _busName;
-			var _newTempHtml = _NextLineHtml
-
-			$(this.travelList).updateWithText(_newTempHtml, this.fadeInterval);
-
-		/**	var _now = moment().format('HH:mm'),
-		*		_sunrise = moment(data.sys.sunrise*1000).format('HH:mm'),
-		*		_sunset = moment(data.sys.sunset*1000).format('HH:mm');
-		*
-		*	var _newWindHtml = '<span class="wind"><span class="wi wi-strong-wind xdimmed"></span> ' + this.ms2Beaufort(_wind) + '</span>',
-		*		_newSunHtml = '<span class="sun"><span class="wi wi-sunrise xdimmed"></span> ' + _sunrise + '</span>';
-		*
-		*	if (_sunrise < _now && _sunset > _now) {
-		*		_newSunHtml = '<span class="sun"><span class="wi wi-sunset xdimmed"></span> ' + _sunset + '</span>';
-		*	}
-		*
-		*	$(this.windSunLocation).updateWithText(_newWindHtml + ' ' + _newSunHtml,this.fadeInterval);
-		*/
+			$(this.travelList).updateWithText(_NextLineHtml, this.fadeInterval);
+			
 		}.bind(this),
 		error: function () {
 
