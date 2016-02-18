@@ -14,7 +14,7 @@ var config = {
             units: 'metric',
             // if you want a different lang for the weather that what is set above, change it here
             lang: 'nb',
-            APPID: '--'
+            APPID: 'appid'
         }
     },
 	ruter: {
@@ -26,7 +26,11 @@ var config = {
 		},
 		metroParams:{
 			id: '3011400'
-		}
+		},
+		apiBaseBus: '/GetRuter.php/StopVisit/GetDepartures/3010524?json=true',
+		apiBaseTram: '/GetRuter.php/StopVisit/GetDepartures/3010520?json=true',
+		apiBaseMetro: '/GetRuter.php/StopVisit/GetDepartures/3011400?json=true',
+		minutesWait : 3,
 	},
     compliments: {
         interval: 30000,

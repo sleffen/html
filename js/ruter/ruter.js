@@ -1,28 +1,24 @@
 var ruter = {
 	// Default language is Dutch because that is what the original author used
 	params: config.weather.params || null,
-	/*iconTable: {
-		'bus':'wi-day-sunny',
-		'tram':'wi-day-cloudy',
-		'metro':'wi-cloudy',
-		},*/
+	iconTable: {
+		'0':'<span class="icon-svg-bus"></span>',
+		'1':'',
+		'2':'',
+		'3':'<span class="icon-svg-tram"></span>',
+		'4':'<span class="icon-svg-metro"></span>',
+		},
 	travelList: '.travel',
-	apiBaseBus: '/GetRuter.php/StopVisit/GetDepartures/3010524?json=true',
-	apiBaseTram: '/GetRuter.php/StopVisit/GetDepartures/3010520?json=true',
-	apiBaseMetro: '/GetRuter.php/StopVisit/GetDepartures/3011400?json=true',
-	busNumber: config.ruter.busNumber,
-	tramNumber: config.ruter.tramNumber,
-	metroNumber: config.ruter.metroNumber,
 	updateInterval: config.weather.interval || 6000,
 	fadeInterval: config.weather.fadeInterval || 1000,
 	intervalId: null,
-	orientation: config.weather.orientation || 'vertical'
+	orientation: config.weather.orientation || 'vertical',
 }
 
 ruter.updateCurrentTravel = function () {
 	$.ajax({
 		type: 'GET',
-		url: ruter.apiBaseBus ,
+		url: config.ruter.apiBaseBus ,
 		dataType: 'json',
 		dataBus: config.ruter.params,
 		success: function (dataBus) {
@@ -31,7 +27,7 @@ ruter.updateCurrentTravel = function () {
 	});
 	$.ajax({
 		type: 'GET',
-		url: ruter.apiBaseTram ,
+		url: config.ruter.apiBaseTram ,
 		dataType: 'json',
 		dataTram: config.ruter.params,
 		success: function (dataTram) {
@@ -40,7 +36,7 @@ ruter.updateCurrentTravel = function () {
 	});
 	$.ajax({
 		type: 'GET',
-		url: ruter.apiBaseMetro ,
+		url: config.ruter.apiBaseMetro ,
 		dataType: 'json',
 		dataMetro: config.ruter.params,
 		success: function (dataMetro) {
@@ -58,16 +54,31 @@ ruter.updateCurrentTravel = function () {
 
 			
 			dataMetro = dataMetro.filter( function(value){
-				return ( value.MonitoredVehicleJourney.MonitoredCall.unixTime > (dtCurrentTime.getTime() + (5*60*1000) ));
+				return ( value.MonitoredVehicleJourney.MonitoredCall.unixTime > (dtCurrentTime.getTime() + (config.ruter.minutesWait*60*1000) ));
 				});
 			
 			dataMetro.sort(function(a,b){
 				return a.MonitoredVehicleJourney.MonitoredCall.unixTime - b.MonitoredVehicleJourney.MonitoredCall.unixTime;
 			})
 			
+			var	_opacity = 1, 
+					_NextLineHtml = '<table class="ruter-table"><tr>',
+					//_NextLineHtml = '<table><tr>',
+					_NextLineHtml2 = '',
+					_NextLineHtml3 = '';
+				
 			
-			
-			var _busName = dataMetro[0].MonitoredVehicleJourney.MonitoredCall.DestinationDisplay + dataMetro[0].MonitoredVehicleJourney.MonitoredCall.AimedArrivalTime;
+			for(var iPrintHTMLCount = 0, count = 11; iPrintHTMLCount < count; iPrintHTMLCount++){
+				var _NextLine = dataMetro[iPrintHTMLCount];
+				var timeUntilNextLine = _NextLine.MonitoredVehicleJourney.MonitoredCall.unixTime - dtCurrentTime.getTime();
+				moment(timeUntilNextLine,'x').format('m')
+				_NextLineHtml += '<td style="opacity:' + _opacity + '" class="day">' + this.iconTable[_NextLine.MonitoredVehicleJourney.VehicleMode] + '</td>';
+				//_NextLineHtml += '<td style="opacity:' + _opacity + '" class="day">' + _NextLine.MonitoredVehicleJourney.LineRef + '</td>';
+				_NextLineHtml += '<td style="opacity:' + _opacity + '" class="day">' + _NextLine.MonitoredVehicleJourney.LineRef  + ' ' + _NextLine.MonitoredVehicleJourney.MonitoredCall.DestinationDisplay + '</td>';
+				_NextLineHtml += '<td style="opacity:' + _opacity + '" class="day">' +  moment(timeUntilNextLine,'x').format('m') +  ' min</td>';
+				_NextLineHtml += '</tr>';
+				}
+			var _busName = dataMetro[0].MonitoredVehicleJourney.MonitoredCall.DestinationDisplay + dataMetro[0].MonitoredVehicleJourney.MonitoredCall.unixTime;
 				//_temperatureMin = this.roundValue(data.main.temp_min),
 				//_temperatureMax = this.roundValue(data.main.temp_max),
 				//_wind = this.roundValue(data.wind.speed),
@@ -75,7 +86,8 @@ ruter.updateCurrentTravel = function () {
 
 			var _icon = '<span class="icon-svg-bus"></span>';
 
-			var _newTempHtml = _icon + "" + _LengthOfData + "" + _busName;
+			//var _newTempHtml = _icon + "" + _LengthOfData + "" + _busName;
+			var _newTempHtml = _NextLineHtml
 
 			$(this.travelList).updateWithText(_newTempHtml, this.fadeInterval);
 

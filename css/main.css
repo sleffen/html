@@ -163,6 +163,30 @@ html {
   color: #999;
 }
 
+.ruter-table {
+  float: center;
+  text-align: left;
+  font-size: 30px;
+  line-height: 20px;
+}
+
+.ruter-table .day,
+.ruter-table .temp-min,
+.ruter-table .temp-max {
+  width: 500px;
+  text-align: center;
+}
+
+.ruter-table .temp-max {
+  width: 60px;
+}
+
+.ruter-table .day {
+  color: #999;
+}
+
+
+
 .calendar-table {
   font-size: 14px;
   line-height: 20px;
